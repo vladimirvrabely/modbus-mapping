@@ -1,11 +1,17 @@
-[package]
-name = "modbus-mapping"
-version = "0.1.0"
-edition = "2021"
-authors = ["Vladimír Vrábeľ", "vladimir.vrabely@gmail.com"]
-description = "Modbus register mapping traits"
-license = "MIT"
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace]
+members = [
+    "modbus-mapping",
+    "modbus-mapping-derive",
+]
+resolver = "2"
 
-[dependencies]
+[workspace.package]
+version = "0.1.1"
+authors = ["Vladimír Vrábeľ <vladimir.vrabely@gmail.com>"]
+edition = "2021"
+rust-version = "1.75.0"
+repository = "https://github.com/vladimirvrabely/modbus-mapping"
+description = "Modbus register mapping traits and derive macros"
+license = "MIT"
+keywords = ["modbus", "automation"]
