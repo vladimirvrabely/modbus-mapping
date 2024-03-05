@@ -5,6 +5,8 @@ use std::{
     net::SocketAddr,
     sync::{Arc, Mutex},
 };
+use tokio_stream::wrappers::IntervalStream;
+use tokio_stream::StreamExt;
 
 use crate::codec::Word;
 use futures::future;
@@ -174,11 +176,10 @@ where
 pub trait Device {
     type InputRegisters: Default + InputRegisterModel;
     type HoldingRegisters: Default + HoldingRegisterModel;
-    type Input;
 
     fn service_call(&mut self, req: Request) -> future::Ready<Result<Response, std::io::Error>>;
 
-    fn update_state(&mut self, input: Self::Input);
+    fn update_state(&mut self);
 }
 
 #[derive(Debug, Clone)]
@@ -203,6 +204,47 @@ impl<D: Device> tokio_modbus::server::Service for Simulator<D> {
     }
 }
 
+/// Utility function to run TCP simulator forever.
+pub async fn run_tcp_simulator<D: Device + Clone + Sync + Send + 'static>(
+    socket_addr: SocketAddr,
+    simulator: Simulator<D>,
+    state_update_period: std::time::Duration,
+) {
+    let simulator_clone = simulator.clone();
+    let server_task = tokio::spawn(async move {
+        let _ = run_tcp_server_context(socket_addr, simulator_clone).await;
+    });
+
+    let state_update_task = spawn_state_update_task(simulator, state_update_period);
+
+    let _ = state_update_task.await;
+    let _ = server_task.await;
+}
+
+/// Utility function to spawn and run simulator RTU simulator forever.
+pub async fn run_rtu_simulator<D: Device + Clone + Sync + Send + 'static>(
+    path: &str,
+    baud_rate: u32,
+    simulator: Simulator<D>,
+    state_update_period: std::time::Duration,
+) {
+    let builder = tokio_serial::new(path, baud_rate);
+    let serial_stream = tokio_serial::SerialStream::open(&builder).unwrap();
+    let server = server::rtu::Server::new(serial_stream);
+    let service = simulator.clone();
+
+    let server_task = tokio::spawn(async move {
+        if let Err(err) = server.serve_forever(service).await {
+            eprintln!("{err}");
+        };
+    });
+
+    let state_update_task = spawn_state_update_task(simulator, state_update_period);
+
+    let _ = state_update_task.await;
+    let _ = server_task.await;
+}
+
 async fn run_tcp_server_context<D: Device + Clone + Sync + Send + 'static>(
     socket_addr: SocketAddr,
     simulator: Simulator<D>,
@@ -219,30 +261,16 @@ async fn run_tcp_server_context<D: Device + Clone + Sync + Send + 'static>(
     server.serve(&on_connected, on_process_error).await.unwrap();
 }
 
-/// Utility function to spawn and run simulator TCP simulator forever.
-pub fn spawn_tcp_simulator<D: Device + Clone + Sync + Send + 'static>(
-    socket_addr: SocketAddr,
+fn spawn_state_update_task<D: Device + Clone + Sync + Send + 'static>(
     simulator: Simulator<D>,
+    state_update_period: std::time::Duration,
 ) -> JoinHandle<()> {
-    tokio::spawn(async move {
-        let _ = run_tcp_server_context(socket_addr, simulator).await;
-    })
-}
-
-/// Utility function to spawn and run simulator RTU simulator forever.
-pub fn spawn_rtu_simulator<D: Device + Clone + Sync + Send + 'static>(
-    path: &str,
-    baud_rate: u32,
-    simulator: Simulator<D>,
-) -> JoinHandle<()> {
-    let builder = tokio_serial::new(path, baud_rate);
-    let serial_stream = tokio_serial::SerialStream::open(&builder).unwrap();
-    let server = server::rtu::Server::new(serial_stream);
-    let service = simulator.clone();
+    let interval = tokio::time::interval(state_update_period);
+    let mut stream = IntervalStream::new(interval);
 
     tokio::spawn(async move {
-        if let Err(err) = server.serve_forever(service).await {
-            eprintln!("{err}");
-        };
+        while let Some(_instant) = stream.next().await {
+            simulator.0.lock().unwrap().update_state();
+        }
     })
 }

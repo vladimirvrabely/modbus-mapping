@@ -1,7 +1,7 @@
 /// Battery TCP Modbus simulator
 use futures::future;
 use modbus_mapping::simulator::{
-    spawn_tcp_simulator, DataStore, Device, InputRegisterModel, Simulator,
+    run_tcp_simulator, DataStore, Device, InputRegisterModel, Simulator,
 };
 use modbus_mapping::{HoldingRegisterModel, InputRegisterModel};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
@@ -33,7 +33,6 @@ struct Battery {
 }
 
 impl Device for Battery {
-    type Input = f32;
     type InputRegisters = BatteryInputRegisters;
     type HoldingRegisters = BatteryHoldingRegisters;
 
@@ -41,9 +40,9 @@ impl Device for Battery {
         self.data_store.service_call(&mut self.hr, req)
     }
 
-    fn update_state(&mut self, input: Self::Input) {
+    fn update_state(&mut self) {
         eprintln!("Updating state");
-        self.ir.power = input;
+        self.ir.power += 1.0;
 
         let _ = self
             .ir
@@ -56,12 +55,7 @@ async fn main() {
     let device = Battery::default();
     let simulator = Simulator::new(device);
     let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
+    let state_update_period = std::time::Duration::from_millis(200);
 
-    spawn_tcp_simulator(socket_addr, simulator.clone());
-    let mut input = 1.0;
-    loop {
-        std::thread::sleep(std::time::Duration::from_millis(200));
-        simulator.0.lock().unwrap().update_state(input);
-        input += 1.0
-    }
+    run_tcp_simulator(socket_addr, simulator, state_update_period).await;
 }
