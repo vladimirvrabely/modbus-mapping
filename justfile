@@ -7,13 +7,13 @@ build:
 	cargo build --workspace --examples --all-features
 
 run-tcp-device:
-	cargo run --example tcp-device --features="simulator"
+	cargo run --example tcp-device --features="examples,simulator"
 
 run-tcp-client:
 	cargo run --example tcp-client
 
 run-rtu-device:
-	cargo run --example rtu-device --features="simulator,serial"
+	cargo run --example rtu-device --features="examples,simulator,serial"
 
 run-rtu-client:
 	cargo run --example rtu-client --features="serial"

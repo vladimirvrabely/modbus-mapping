@@ -20,18 +20,22 @@ tokio = { version = "1", features = ["default"] }
 tokio-modbus = { version = "0.9", default-features = true}
 # Optional
 futures = {version = "0.3", optional = true}
+rand_chacha = { version = "0.3", optional = true }
+rand_distr = { version = "0.4", optional = true }
 tokio-serial = {version = "5.4", optional = true }
 tokio-stream = {version = "0.1", optional = true }
+
 
 [features]
 simulator = ["dep:futures", "dep:tokio-serial", "dep:tokio-stream"]
 serial = ["dep:tokio-serial"]
+examples = ["dep:rand_chacha", "dep:rand_distr"]
 
 
 [[example]]
 name = "tcp-device"
 path = "examples/tcp_device.rs"
-required-features = ["simulator"]
+required-features = ["examples", "simulator"]
 
 [[example]]
 name = "tcp-client"
@@ -40,7 +44,7 @@ path = "examples/tcp_client.rs"
 [[example]]
 name = "rtu-device"
 path = "examples/rtu_device.rs"
-required-features = ["simulator", "serial"]
+required-features = ["examples", "serial", "simulator"]
 
 [[example]]
 name = "rtu-client"

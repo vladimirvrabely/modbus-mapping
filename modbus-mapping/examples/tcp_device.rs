@@ -4,6 +4,9 @@ use modbus_mapping::simulator::{
     run_tcp_simulator, DataStore, Device, InputRegisterModel, Simulator,
 };
 use modbus_mapping::{HoldingRegisterModel, InputRegisterModel};
+use rand_chacha::rand_core::SeedableRng;
+use rand_chacha::ChaCha8Rng;
+use rand_distr::{Distribution, Normal};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tokio_modbus::{Request, Response};
 
@@ -25,11 +28,24 @@ pub struct BatteryHoldingRegisters {
     pub setpoint: f32,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 struct Battery {
     ir: BatteryInputRegisters,
     hr: BatteryHoldingRegisters,
     data_store: DataStore<BatteryInputRegisters, BatteryHoldingRegisters>,
+    seed_rng: ChaCha8Rng,
+    grid_freq_distr: Normal<f32>,
+}
+impl Default for Battery {
+    fn default() -> Self {
+        Self {
+            ir: BatteryInputRegisters::default(),
+            hr: BatteryHoldingRegisters::default(),
+            data_store: DataStore::default(),
+            seed_rng: ChaCha8Rng::seed_from_u64(0),
+            grid_freq_distr: Normal::new(50.0, 0.1).unwrap(),
+        }
+    }
 }
 
 impl Device for Battery {
@@ -43,7 +59,9 @@ impl Device for Battery {
     fn update_state(&mut self) {
         eprintln!("Updating state");
         self.ir.power += 1.0;
+        self.ir.grid_frequency = self.grid_freq_distr.sample(&mut self.seed_rng);
 
+        // Sync with data_store
         let _ = self
             .ir
             .update_registers(&mut self.data_store.input_registers);
