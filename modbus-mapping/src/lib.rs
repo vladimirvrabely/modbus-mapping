@@ -33,6 +33,7 @@ pub mod codec;
 pub mod core;
 
 /// Traits and utilities to create device simulator (based on tokio-modbus [servers examples](https://github.com/slowtec/tokio-modbus/tree/main/examples))
+#[cfg(feature = "simulator")]
 pub mod simulator;
 
 /// Re-export.
