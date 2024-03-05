@@ -90,9 +90,9 @@ pub trait HoldingRegisterModel {
 #[derive(Debug, Clone)]
 /// Modbus data store to be used in IO operations for the simulation purposes.
 pub struct DataStore<I, H> {
-    input_registers: Registers,
+    pub input_registers: Registers,
     input_register_model: PhantomData<I>,
-    holding_registers: Registers,
+    pub holding_registers: Registers,
     holding_register_model: PhantomData<H>,
 }
 
@@ -120,7 +120,7 @@ where
     pub fn service_call(
         &mut self,
         holding_register_model: &mut H,
-        req: Request<'static>,
+        req: Request,
     ) -> future::Ready<Result<Response, std::io::Error>> {
         match req {
             Request::ReadInputRegisters(addr, cnt) => match self.input_registers.read(addr, cnt) {

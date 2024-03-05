@@ -24,5 +24,9 @@ tokio-serial = "5.4"
 
 
 [[example]]
-name = "tcp-battery"
-path = "examples/tcp_battery.rs"
+name = "tcp-device"
+path = "examples/tcp_device.rs"
+
+[[example]]
+name = "tcp-client"
+path = "examples/tcp_client.rs"

@@ -1,6 +1,6 @@
 
 
-# modbus-mapping-map
+# modbus-mapping
 
 *WORK IN PROGRESS*
 
