@@ -25,6 +25,7 @@ tokio-stream = {version = "0.1", optional = true }
 
 [features]
 simulator = ["dep:futures", "dep:tokio-serial", "dep:tokio-stream"]
+serial = ["dep:tokio-serial"]
 
 
 [[example]]
@@ -35,3 +36,13 @@ required-features = ["simulator"]
 [[example]]
 name = "tcp-client"
 path = "examples/tcp_client.rs"
+
+[[example]]
+name = "rtu-device"
+path = "examples/rtu_device.rs"
+required-features = ["simulator", "serial"]
+
+[[example]]
+name = "rtu-client"
+path = "examples/rtu_client.rs"
+required-features = ["serial"]

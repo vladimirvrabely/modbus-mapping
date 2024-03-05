@@ -1,10 +1,9 @@
-/// Battery TCP Modbus simulator
+/// Battery RTU Modbus simulator
 use futures::future;
 use modbus_mapping::simulator::{
-    run_tcp_simulator, DataStore, Device, InputRegisterModel, Simulator,
+    run_rtu_simulator, DataStore, Device, InputRegisterModel, Simulator,
 };
 use modbus_mapping::{HoldingRegisterModel, InputRegisterModel};
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tokio_modbus::{Request, Response};
 
 #[derive(Debug, Clone, Default, InputRegisterModel)]
@@ -54,8 +53,10 @@ impl Device for Battery {
 async fn main() {
     let device = Battery::default();
     let simulator = Simulator::new(device);
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
     let state_update_period: std::time::Duration = std::time::Duration::from_millis(200);
 
-    run_tcp_simulator(socket_addr, simulator, state_update_period).await;
+    let path = "/tmp/ttys001";
+    let baud_rate = 0;
+
+    run_rtu_simulator(path, baud_rate, simulator, state_update_period).await;
 }
