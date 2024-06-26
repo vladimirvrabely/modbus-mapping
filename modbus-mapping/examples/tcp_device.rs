@@ -72,7 +72,7 @@ impl Device for Battery {
 async fn main() {
     let device = Battery::default();
     let simulator = Simulator::new(device);
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8502);
     let state_update_period: std::time::Duration = std::time::Duration::from_millis(200);
 
     run_tcp_simulator(socket_addr, simulator, state_update_period).await;

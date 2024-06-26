@@ -10,7 +10,7 @@ run-tcp-device:
 	cargo run --example tcp-device --features="examples,simulator"
 
 run-tcp-client:
-	cargo run --example tcp-client
+	cargo run --example tcp-client --features="examples"
 
 run-rtu-device:
 	cargo run --example rtu-device --features="examples,simulator,serial"

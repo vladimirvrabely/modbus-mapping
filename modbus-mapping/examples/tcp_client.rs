@@ -26,7 +26,7 @@ pub struct BatteryHoldingRegisters {
 
 #[tokio::main]
 async fn main() {
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080);
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8502);
     let slave = Slave(0);
 
     let mut client = connect_slave(socket_addr, slave).await.unwrap();

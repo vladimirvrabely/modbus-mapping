@@ -11,6 +11,8 @@
 //!
 //! For convenience it provides derive macros to implement the traits automatically. The derive macros depends on `modbus` field attribute.
 //!
+//! See [examples/](https://github.com/vladimirvrabely/modbus-mapping/tree/main/modbus-mapping/examples) for simple usage.
+//!
 //! The `modbus` attributes **can** be added to struct fields to link them with modbus register mapping entries.
 //! Then, the field `modbus` **must** contain the following key-values pairs:
 //! - `addr` - input or holding register start address, `u16` integer,
