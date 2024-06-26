@@ -35,7 +35,10 @@ pub fn derive_input_register_map(input: TokenStream) -> TokenStream {
 
         let block = quote! {
             // Read
-            let words = client.read_input_registers(#start, #len).await?;
+            let words = match client.read_input_registers(#start, #len).await? {
+                Ok(words) => words,
+                Err(exc) => return Ok(Err(exc)),
+            };
             #(
                 // Decode
                 let #field_name: #ty = modbus_mapping::codec::Decode::#from_words(&words[(#addr - #start) as usize..(#addr - #start + #cnt) as usize]).unwrap();
@@ -54,9 +57,9 @@ pub fn derive_input_register_map(input: TokenStream) -> TokenStream {
     let tokens = quote! {
         #[async_trait::async_trait]
         impl modbus_mapping::core::InputRegisterMap for #name {
-            async fn update_from_input_registers(&mut self, client: &mut dyn tokio_modbus::client::Reader) -> Result<(), std::io::Error>{
+            async fn update_from_input_registers(&mut self, client: &mut dyn tokio_modbus::client::Reader) -> tokio_modbus::Result<()>{
                 #(#blocks)*
-                Ok(())
+                Ok(Ok(()))
             }
         }
 
@@ -92,7 +95,10 @@ pub fn derive_holding_register_map(input: TokenStream) -> TokenStream {
 
         let block = quote! {
             // Read
-            let words = client.read_holding_registers(#start, #len).await?;
+            let words = match client.read_holding_registers(#start, #len).await? {
+                Ok(words) => words,
+                Err(exc) => return Ok(Err(exc)),
+            };
             #(
                 // Decode
                 let #field_name: #ty = modbus_mapping::codec::Decode::#from_words(&words[(#addr - #start) as usize..(#addr - #start + #cnt) as usize]).unwrap();
@@ -127,12 +133,18 @@ pub fn derive_holding_register_map(input: TokenStream) -> TokenStream {
         };
         if entry.ty.word_size() == 1 {
             block.extend(quote! {
-                client.write_single_register(#addr, field_words.first().unwrap().clone()).await?;
+                match client.write_single_register(#addr, field_words.first().unwrap().clone()).await? {
+                    Ok(_) => {},
+                    Err(exc) => return Ok(Err(exc))
+                };
             })
         } else {
             block.extend(quote! {
                 // Set (use splice alternatively)
-                client.write_multiple_registers(#addr, &field_words).await?;
+                match client.write_multiple_registers(#addr, &field_words).await? {
+                    Ok(_) => {},
+                    Err(exc) => return Ok(Err(exc))
+                };
             })
         }
 
@@ -140,9 +152,9 @@ pub fn derive_holding_register_map(input: TokenStream) -> TokenStream {
 
         let method = entry.write_method_ident();
         let block = quote! {
-            pub async fn #method(&self, client: &mut dyn tokio_modbus::client::Writer) -> Result<(), std::io::Error> {
+            pub async fn #method(&self, client: &mut dyn tokio_modbus::client::Writer) -> tokio_modbus::Result<()> {
                 #block
-                Ok(())
+                Ok(Ok(()))
             }
         };
         method_blocks.push(block.clone());
@@ -151,14 +163,14 @@ pub fn derive_holding_register_map(input: TokenStream) -> TokenStream {
     let tokens = quote! {
         #[async_trait::async_trait]
         impl modbus_mapping::core::HoldingRegisterMap for #name {
-            async fn update_from_holding_registers(&mut self, client: &mut dyn tokio_modbus::client::Reader) -> Result<(), std::io::Error>{
-                #(#read_blocks)*
-                Ok(())
+            async fn update_from_holding_registers(&mut self, client: &mut dyn tokio_modbus::client::Reader) -> tokio_modbus::Result<()>{
+                // #(#read_blocks)*
+                Ok(Ok(()))
             }
 
-            async fn write_to_registers(&self, client: &mut dyn tokio_modbus::client::Writer) -> Result<(), std::io::Error> {
+            async fn write_to_registers(&self, client: &mut dyn tokio_modbus::client::Writer) -> tokio_modbus::Result<()> {
                 #(#write_blocks)*;
-                Ok(())
+                Ok(Ok(()))
             }
         }
 
@@ -298,6 +310,7 @@ pub fn derive_holding_register_model(input: TokenStream) -> TokenStream {
                     registers.write(#addr, &modbus_mapping::codec::Encode::#to_words(#field_name))?;
 
                 )*
+
                 Ok(())
             }
 

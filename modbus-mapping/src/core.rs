@@ -11,13 +11,13 @@ where
     async fn update_from_input_registers(
         &mut self,
         client: &mut dyn Reader,
-    ) -> Result<(), std::io::Error>;
+    ) -> tokio_modbus::Result<()>;
 
-    async fn from_input_registers(client: &mut dyn Reader) -> Result<Self, std::io::Error> {
+    async fn from_input_registers(client: &mut dyn Reader) -> tokio_modbus::Result<Self> {
         let mut new = Self::default();
-        new.update_from_input_registers(client).await?;
+        let _ = new.update_from_input_registers(client).await?;
 
-        Ok(new)
+        Ok(Ok(new))
     }
 }
 
@@ -31,14 +31,14 @@ where
     async fn update_from_holding_registers(
         &mut self,
         client: &mut dyn Reader,
-    ) -> Result<(), std::io::Error>;
+    ) -> tokio_modbus::Result<()>;
 
-    async fn from_holding_registers(client: &mut dyn Reader) -> Result<Self, std::io::Error> {
+    async fn from_holding_registers(client: &mut dyn Reader) -> tokio_modbus::Result<Self> {
         let mut new = Self::default();
-        new.update_from_holding_registers(client).await?;
+        let _ = new.update_from_holding_registers(client).await?;
 
-        Ok(new)
+        Ok(Ok(new))
     }
 
-    async fn write_to_registers(&self, client: &mut dyn Writer) -> Result<(), std::io::Error>;
+    async fn write_to_registers(&self, client: &mut dyn Writer) -> tokio_modbus::Result<()>;
 }

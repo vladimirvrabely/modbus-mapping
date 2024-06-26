@@ -31,6 +31,7 @@ async fn main() {
     loop {
         let ir = BatteryInputRegisters::from_input_registers(&mut client)
             .await
+            .unwrap()
             .unwrap();
         std::thread::sleep(std::time::Duration::from_millis(200));
         println!("{:?}", ir);

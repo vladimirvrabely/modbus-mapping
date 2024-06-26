@@ -16,8 +16,8 @@ version.workspace = true
 [dependencies]
 async-trait = "0.1"
 modbus-mapping-derive = { version = "0.3.0", path = "../modbus-mapping-derive" }
-tokio = { version = "1", features = ["default"] }
-tokio-modbus = { version = "0.11", features = ["default"]}
+tokio = { version = "1", features = ["full"] }
+tokio-modbus = { version = "0.13", features = ["default"]}
 # Optional
 futures = {version = "0.3", optional = true}
 rand_chacha = { version = "0.3", optional = true }
@@ -40,6 +40,7 @@ required-features = ["examples", "simulator"]
 [[example]]
 name = "tcp-client"
 path = "examples/tcp_client.rs"
+required-features = ["examples"]
 
 [[example]]
 name = "rtu-device"
@@ -49,4 +50,9 @@ required-features = ["examples", "serial", "simulator"]
 [[example]]
 name = "rtu-client"
 path = "examples/rtu_client.rs"
-required-features = ["serial"]
+required-features = ["examples", "serial"]
+
+[[example]]
+name = "no-macros"
+path = "examples/no_macros.rs"
+required-features = ["examples"]
