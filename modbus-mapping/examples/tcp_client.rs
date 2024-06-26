@@ -1,5 +1,8 @@
 /// TCP Modbus client
-use modbus_mapping::{core::InputRegisterMap, HoldingRegisterMap, InputRegisterMap};
+use modbus_mapping::{
+    core::InputRegisterMap,
+    derive::{HoldingRegisterMap, InputRegisterMap},
+};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tokio_modbus::{client::tcp::connect_slave, slave::Slave};
 

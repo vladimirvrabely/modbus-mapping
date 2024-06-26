@@ -1,5 +1,8 @@
 /// RTU Modbus client
-use modbus_mapping::{core::InputRegisterMap, HoldingRegisterMap, InputRegisterMap};
+use modbus_mapping::{
+    core::InputRegisterMap,
+    derive::{HoldingRegisterMap, InputRegisterMap},
+};
 use tokio_modbus::{client::rtu::attach_slave, slave::Slave};
 
 #[derive(Debug, Clone, Default, InputRegisterMap)]

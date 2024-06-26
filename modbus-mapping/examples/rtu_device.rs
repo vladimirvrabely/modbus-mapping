@@ -1,9 +1,9 @@
 /// Battery RTU Modbus simulator
 use futures::future;
+use modbus_mapping::derive::{HoldingRegisterModel, InputRegisterModel};
 use modbus_mapping::simulator::{
     run_rtu_simulator, DataStore, Device, InputRegisterModel, Simulator,
 };
-use modbus_mapping::{HoldingRegisterModel, InputRegisterModel};
 use tokio_modbus::{Exception, Request, Response};
 
 #[derive(Debug, Clone, Default, InputRegisterModel)]

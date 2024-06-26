@@ -1,9 +1,9 @@
 /// Battery TCP Modbus simulator
 use futures::future;
+use modbus_mapping::derive::{HoldingRegisterModel, InputRegisterModel};
 use modbus_mapping::simulator::{
     run_tcp_simulator, DataStore, Device, InputRegisterModel, Simulator,
 };
-use modbus_mapping::{HoldingRegisterModel, InputRegisterModel};
 use rand_chacha::rand_core::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rand_distr::{Distribution, Normal};

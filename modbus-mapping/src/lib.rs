@@ -36,7 +36,9 @@ pub mod core;
 #[cfg(feature = "simulator")]
 pub mod simulator;
 
-/// Re-export.
-pub use modbus_mapping_derive::{
-    modbus_doc, HoldingRegisterMap, HoldingRegisterModel, InputRegisterMap, InputRegisterModel,
-};
+pub mod derive {
+    /// Re-export.
+    pub use modbus_mapping_derive::{
+        modbus_doc, HoldingRegisterMap, HoldingRegisterModel, InputRegisterMap, InputRegisterModel,
+    };
+}
