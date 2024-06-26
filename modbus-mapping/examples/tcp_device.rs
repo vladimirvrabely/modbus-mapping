@@ -8,7 +8,7 @@ use rand_chacha::rand_core::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rand_distr::{Distribution, Normal};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use tokio_modbus::{Request, Response};
+use tokio_modbus::{Exception, Request, Response};
 
 #[derive(Debug, Clone, Default, InputRegisterModel)]
 pub struct BatteryInputRegisters {
@@ -52,7 +52,7 @@ impl Device for Battery {
     type InputRegisters = BatteryInputRegisters;
     type HoldingRegisters = BatteryHoldingRegisters;
 
-    fn service_call(&mut self, req: Request) -> future::Ready<Result<Response, std::io::Error>> {
+    fn service_call(&mut self, req: Request) -> future::Ready<Result<Response, Exception>> {
         self.data_store.service_call(&mut self.hr, req)
     }
 

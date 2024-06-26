@@ -238,7 +238,7 @@ pub fn derive_input_register_model(input: TokenStream) -> TokenStream {
             fn update_registers(
                 &self,
                 registers: &mut modbus_mapping::simulator::Registers,
-            ) -> Result<(), std::io::Error> {
+            ) -> Result<(), tokio_modbus::Exception> {
                 #(
                     // Divide by scale factor
                     #[allow(clippy::unnecessary_cast)]
@@ -290,7 +290,7 @@ pub fn derive_holding_register_model(input: TokenStream) -> TokenStream {
             fn update_registers(
                 &self,
                 registers: &mut modbus_mapping::simulator::Registers,
-            ) -> Result<(), std::io::Error> {
+            ) -> Result<(), tokio_modbus::Exception> {
                 #(
                     // Divide by scale factor
                     #[allow(clippy::unnecessary_cast)]
@@ -301,7 +301,7 @@ pub fn derive_holding_register_model(input: TokenStream) -> TokenStream {
                 Ok(())
             }
 
-            fn update_self(&mut self, registers: &modbus_mapping::simulator::Registers) -> Result<(), std::io::Error> {
+            fn update_self(&mut self, registers: &modbus_mapping::simulator::Registers) -> Result<(), tokio_modbus::Exception> {
                 #(
                     // Read
                     let words = registers.read(#addr, #cnt)?;

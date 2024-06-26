@@ -17,7 +17,7 @@ version.workspace = true
 async-trait = "0.1"
 modbus-mapping-derive = { version = "0.3.0", path = "../modbus-mapping-derive" }
 tokio = { version = "1", features = ["default"] }
-tokio-modbus = { version = "0.10", features = ["default"]}
+tokio-modbus = { version = "0.11", features = ["default"]}
 # Optional
 futures = {version = "0.3", optional = true}
 rand_chacha = { version = "0.3", optional = true }
